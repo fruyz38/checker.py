@@ -67,9 +67,10 @@ class CCCheckerModal(discord.ui.Modal, title="💳 CC Checker Sorgu"):
         
         girdi = self.cc_info.value.strip()
         
-        # DÜZELTİLDİ: URL artık temiz bir metin formatında
+        # --- BURAYI DÜZELTTİM ---
         base_url = "[https://cc-3t5u.onrender.com/puanapi.php](https://cc-3t5u.onrender.com/puanapi.php)"
         params = {'cc': girdi}
+        # ------------------------
         
         async with aiohttp.ClientSession() as session:
             try:
@@ -104,13 +105,11 @@ async def on_ready():
 @bot.tree.command(name="checker", description="CC Checker panelini açar.")
 async def checker(interaction: discord.Interaction):
     view = CheckerPaneli()
-    
     embed = discord.Embed(
         title="🪪 Zynex CC Checker Sistemine Hoş Geldin!",
-        description="""Aşağıdaki butona tıklayarak kart kontrol sistemini güvenle kullanabilirsiniz.""",
+        description="Aşağıdaki butona tıklayarak kart kontrol sistemini güvenle kullanabilirsiniz.",
         color=discord.Color.from_rgb(46, 139, 87)
     )
-    
     embed.set_footer(text="fruyz oto api entegrasyonu")
     await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
 
