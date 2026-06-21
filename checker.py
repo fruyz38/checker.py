@@ -28,17 +28,48 @@ intents.message_content = True
 bot = commands.Bot(command_prefix="!", intents=intents)
 
 
-# --- 3. VERİ FORMATLAYICI ---
+# --- 3. GELİŞMİŞ VERİ FORMATLAYICI (Daha güzel görünüm) ---
 def format_api_response(raw_text):
-    ucl_tirnak = "```"
     try:
         data = json.loads(raw_text)
-        if isinstance(data, dict):
-            pretty_json = json.dumps(data, indent=4, ensure_ascii=False)
-            return f"💳 **Sorgu Sonucu:**\n{ucl_tirnak}json\n{pretty_json[:1800]}\n{ucl_tirnak}"
+        
+        embed = discord.Embed(
+            title="💳 Sorgu Sonucu",
+            color=discord.Color.red() if data.get("success") is False else discord.Color.green()
+        )
+
+        # Ana Bilgiler
+        embed.add_field(name="✅ Durum", value=data.get("status", "Bilinmiyor"), inline=True)
+        embed.add_field(name="Success", value=str(data.get("success", "N/A")), inline=True)
+        
+        # Kart Bilgisi
+        if "card" in data:
+            embed.add_field(name="🃏 Kart", value=f"`{data['card']}`", inline=False)
+        
+        # Message
+        if "message" in data:
+            embed.add_field(name="📝 Mesaj", value=data["message"], inline=False)
+
+        # BIN Bilgileri
+        if "bin_info" in data and isinstance(data["bin_info"], dict):
+            bin_info = data["bin_info"]
+            embed.add_field(name="🏦 BIN Bilgileri", value="\u200b", inline=False)
+            embed.add_field(name="Scheme", value=bin_info.get("scheme", "-"), inline=True)
+            embed.add_field(name="Type", value=bin_info.get("type", "-"), inline=True)
+            embed.add_field(name="Issuer", value=bin_info.get("issuer", "-"), inline=True)
+            embed.add_field(name="Tier", value=bin_info.get("tier", "-"), inline=True)
+            embed.add_field(name="Country", value=bin_info.get("country", "-"), inline=True)
+
+        # Telegram
+        if "telegram" in data:
+            embed.add_field(name="📨 Telegram", value=data["telegram"], inline=False)
+
+        return embed
+
     except Exception:
-        pass
-    return f"💳 **Sorgu Sonucu:**\n{ucl_tirnak}\n{raw_text[:1900]}\n{ucl_tirnak}"
+        # JSON parse edilemezse eski tarzda göster
+        ucl_tirnak = "```"
+        return f"💳 **Sorgu Sonucu:**\n{ucl_tirnak}\n{raw_text[:1900]}\n{ucl_tirnak}"
 
 
 # --- 4. AUTO-PING (KEEP-ALIVE) SİSTEMİ ---
@@ -81,7 +112,13 @@ class CCCheckerModal(discord.ui.Modal, title="💳 CC Checker Sorgu"):
                 async with session.get(base_url, params=params, timeout=20) as resp:
                     sonuc = await resp.text()
                     mesaj = format_api_response(sonuc)
-                    await interaction.followup.send(mesaj, ephemeral=True)
+                    
+                    # Embed ise embed olarak gönder
+                    if isinstance(mesaj, discord.Embed):
+                        await interaction.followup.send(embed=mesaj, ephemeral=True)
+                    else:
+                        await interaction.followup.send(mesaj, ephemeral=True)
+                        
             except Exception as e:
                 await interaction.followup.send(f"❌ API Hatası: {str(e)}", ephemeral=True)
 
