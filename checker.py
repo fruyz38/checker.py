@@ -54,7 +54,7 @@ async def keep_alive_ping():
 async def before_keep_alive_ping():
     await bot.wait_until_ready()
 
-# --- 5. SORGULAMA MODALI (AÇILIR PENCERE) ---
+# --- 5. SORGULAMA MODALI ---
 class CCCheckerModal(discord.ui.Modal, title="💳 CC Checker Sorgu"):
     cc_info = discord.ui.TextInput(
         label="Kart Bilgilerini Giriniz", 
@@ -64,13 +64,11 @@ class CCCheckerModal(discord.ui.Modal, title="💳 CC Checker Sorgu"):
 
     async def on_submit(self, interaction: discord.Interaction):
         await interaction.response.defer(ephemeral=True)
-        
         girdi = self.cc_info.value.strip()
         
-        # --- BURAYI DÜZELTTİM ---
+        # URL'yi temiz bir şekilde buraya yazıyorum (Parantez yok!)
         base_url = "[https://cc-3t5u.onrender.com/puanapi.php](https://cc-3t5u.onrender.com/puanapi.php)"
         params = {'cc': girdi}
-        # ------------------------
         
         async with aiohttp.ClientSession() as session:
             try:
@@ -79,9 +77,9 @@ class CCCheckerModal(discord.ui.Modal, title="💳 CC Checker Sorgu"):
                     mesaj = format_api_response(sonuc)
                     await interaction.followup.send(mesaj, ephemeral=True)
             except Exception as e:
-                await interaction.followup.send(f"❌ API Hatası Oluştu: {str(e)}", ephemeral=True)
+                await interaction.followup.send(f"❌ API Hatası: {str(e)}", ephemeral=True)
 
-# --- 6. GÖRSEL BUTONLAR MENÜSÜ (VIEW) ---
+# --- 6. GÖRSEL BUTONLAR MENÜSÜ ---
 class CheckerPaneli(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
@@ -90,15 +88,14 @@ class CheckerPaneli(discord.ui.View):
     async def check_btn(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.send_modal(CCCheckerModal())
 
-# --- 7. BOT ETKİNLİKLERİ VE SLASH KOMUTU ---
+# --- 7. BOT ETKİNLİKLERİ ---
 @bot.event
 async def on_ready():
     print(f"[{bot.user.name}] Başarıyla giriş yaptı.")
     if not keep_alive_ping.is_running():
         keep_alive_ping.start()
     try:
-        synced = await bot.tree.sync()
-        print(f"✅ {len(synced)} adet slash komutu senkronize edildi!")
+        await bot.tree.sync()
     except Exception as e:
         print(f"❌ Komut senkronizasyon hatası: {e}")
 
@@ -106,11 +103,10 @@ async def on_ready():
 async def checker(interaction: discord.Interaction):
     view = CheckerPaneli()
     embed = discord.Embed(
-        title="🪪 Zynex CC Checker Sistemine Hoş Geldin!",
-        description="Aşağıdaki butona tıklayarak kart kontrol sistemini güvenle kullanabilirsiniz.",
-        color=discord.Color.from_rgb(46, 139, 87)
+        title="🪪 Zynex CC Checker",
+        description="Aşağıdaki butona tıklayarak sorgulama yapabilirsiniz.",
+        color=discord.Color.green()
     )
-    embed.set_footer(text="fruyz oto api entegrasyonu")
     await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
 
 # --- 8. ANA ÇALIŞTIRICI ---
@@ -122,5 +118,3 @@ if __name__ == "__main__":
     TOKEN = os.environ.get("DISCORD_TOKEN")
     if TOKEN:
         bot.run(TOKEN)
-    else:
-        print("HATA: Render ayarlarında 'DISCORD_TOKEN' bulunamadı!")
