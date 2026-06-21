@@ -28,7 +28,7 @@ intents.message_content = True
 bot = commands.Bot(command_prefix="!", intents=intents)
 
 
-# --- 3. GELİŞMİŞ VERİ FORMATLAYICI (Daha güzel görünüm) ---
+# --- 3. GELİŞMİŞ VERİ FORMATLAYICI ---
 def format_api_response(raw_text):
     try:
         data = json.loads(raw_text)
@@ -60,9 +60,9 @@ def format_api_response(raw_text):
             embed.add_field(name="Tier", value=bin_info.get("tier", "-"), inline=True)
             embed.add_field(name="Country", value=bin_info.get("country", "-"), inline=True)
 
-        # Telegram
-        if "telegram" in data:
-            embed.add_field(name="📨 Telegram", value=data["telegram"], inline=False)
+        # Telegram alanı KALDİRILDI
+        # if "telegram" in data:
+        #     embed.add_field(name="📨 Telegram", value=data["telegram"], inline=False)
 
         return embed
 
@@ -113,7 +113,6 @@ class CCCheckerModal(discord.ui.Modal, title="💳 CC Checker Sorgu"):
                     sonuc = await resp.text()
                     mesaj = format_api_response(sonuc)
                     
-                    # Embed ise embed olarak gönder
                     if isinstance(mesaj, discord.Embed):
                         await interaction.followup.send(embed=mesaj, ephemeral=True)
                     else:
