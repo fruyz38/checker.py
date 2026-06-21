@@ -66,10 +66,9 @@ class CCCheckerModal(discord.ui.Modal, title="💳 CC Checker Sorgu"):
         await interaction.response.defer(ephemeral=True)
         girdi = self.cc_info.value.strip()
         
-        # --- BURASI DÜZELTİLDİ: SADECE TEMİZ URL ---
-       base_url = "https://cc-3t5u.onrender.com/puanapi.php"
+        # Hizalama hatası olmaması için burayı netleştirdim
+        base_url = "[https://cc-3t5u.onrender.com/puanapi.php](https://cc-3t5u.onrender.com/puanapi.php)"
         params = {'cc': girdi}
-        # --------------------------------------------
         
         async with aiohttp.ClientSession() as session:
             try:
