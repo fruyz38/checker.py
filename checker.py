@@ -148,7 +148,7 @@ async def on_ready():
 async def checker(interaction: discord.Interaction):
     view = CheckerPaneli()
     embed = discord.Embed(
-        title="🪪 Zynex CC Checker",
+        title="🪪 Alves CC Checker",
         description="Aşağıdaki butona tıklayarak sorgulama yapabilirsiniz.",
         color=discord.Color.green()
     )
