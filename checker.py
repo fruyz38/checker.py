@@ -79,7 +79,7 @@ class CCCheckerModal(discord.ui.Modal, title="💳 CC Checker Sorgu"):
     cc_info = discord.ui.TextInput(label="Kart Bilgilerini Giriniz", placeholder="no|ay|yıl|cvv", required=True)
 
     async def on_submit(self, interaction: discord.Interaction):
-        await interaction.response.defer(ephemeral=True)
+        await interaction.response.defer(ephemeral=True)  # SADECE KULLANICI GÖRÜR
         girdi = self.cc_info.value.strip()
         base_url = "https://cc-3t5u.onrender.com/puanapi.php"
         
@@ -89,12 +89,12 @@ class CCCheckerModal(discord.ui.Modal, title="💳 CC Checker Sorgu"):
                     sonuc = await resp.text()
                     mesaj = format_api_response(sonuc)
                     if isinstance(mesaj, discord.Embed):
-                        await interaction.followup.send(embed=mesaj, ephemeral=True)
+                        await interaction.followup.send(embed=mesaj, ephemeral=True)  # SADECE KULLANICI GÖRÜR
                     else:
-                        await interaction.followup.send(mesaj, ephemeral=True)
+                        await interaction.followup.send(mesaj, ephemeral=True)  # SADECE KULLANICI GÖRÜR
         except Exception as e:
             logger.error(f"API Hatası: {e}")
-            await interaction.followup.send(f"❌ API Hatası: {str(e)}", ephemeral=True)
+            await interaction.followup.send(f"❌ API Hatası: {str(e)}", ephemeral=True)  # SADECE KULLANICI GÖRÜR
 
 # --- VIEW ---
 class CheckerPaneli(discord.ui.View):
@@ -120,8 +120,13 @@ async def on_ready():
 @bot.tree.command(name="checker", description="CC Checker panelini açar.")
 async def checker(interaction: discord.Interaction):
     view = CheckerPaneli()
-    embed = discord.Embed(title="🪪 Zynex CC Checker", description="Aşağıdaki butona tıklayarak sorgulama yapabilirsiniz.", color=discord.Color.green())
-    await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
+    embed = discord.Embed(
+        title="🪪 Zynex CC Checker", 
+        description="Aşağıdaki butona tıklayarak sorgulama yapabilirsiniz.", 
+        color=discord.Color.green()
+    )
+    # HERKESE GÖRÜNÜR - ephemeral yok
+    await interaction.response.send_message(embed=embed, view=view)
 
 # --- START ---
 if __name__ == "__main__":
